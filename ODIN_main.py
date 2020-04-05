@@ -8,8 +8,3 @@ print('This project offers a set of functions to perform Anomaly Detection on Co
 print('To see how to use the functions to perform anomaly detection see the provided Jupyter Notebooks')
 
 print('The project is currently under development. It will become more stable with time ;)')
-
-project_path = 'D:/Personal_Projects/Dossier/ODIN'  # This path should point to the current project folder
-experiments_folder = project_path + '/Experiments/disney_amazon_glance/'
-data_folder = project_path + '/Networks/disney_amazon/'
-
