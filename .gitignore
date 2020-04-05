@@ -1,4 +1,6 @@
 *.pyc
+Experiments/disney_amazon_glance/*
+Experiments/us_elections_2018_tweets/*
 
 .idea/
 __pycache__/

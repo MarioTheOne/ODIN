@@ -1,5 +1,4 @@
 # This module is in charge of managing the network representations
-
 import networkx as nx
 import pickle
 
@@ -10,6 +9,11 @@ def write_network_as_gpickle_file(network, file_path):
 
 def read_network_from_gpickle_file(file_path):
     result = nx.read_gpickle(file_path)
+    return result
+
+
+def read_network_from_graphml(file_path):
+    result = nx.read_graphml(file_path)
     return result
 
 

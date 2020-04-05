@@ -1,3 +1,4 @@
+# This module contains the functions for building a network from tweets
 import json
 import networkx as nx
 import os
@@ -44,45 +45,20 @@ def read_retweet_network(tweets_folder_path):
 
 
 def get_out_degree_per_vertex(graph):
-    node_degree_dict = {}
-    for node in graph.nodes():
-        node_out_degree = 0
-
-        for u_from, u_to, edge_atts in graph.out_edges(node, data=True):
-            node_out_degree += edge_atts['count']
-
-        node_degree_dict[node] = node_out_degree
-
+    degrees = graph.out_degree(weight='count')
+    node_degree_dict = dict(degrees)
     return node_degree_dict
 
 
 def get_in_degree_per_vertex(graph):
-    node_degree_dict = {}
-    for node in graph.nodes():
-        node_in_degree = 0
-
-        for u_from, u_to, edge_atts in graph.in_edges(node, data=True):
-            node_in_degree += edge_atts['count']
-
-        node_degree_dict[node] = node_in_degree
-
+    degrees = graph.in_degree(weight='count')
+    node_degree_dict = dict(degrees)
     return node_degree_dict
 
 
 def get_degree_per_vertex(graph):
-    node_degree_dict = {}
-    for node in graph.nodes():
-        node_in_degree = 0
-        node_out_degree = 0
-
-        for u_from, u_to, edge_atts in graph.in_edges(node, data=True):
-            node_in_degree += edge_atts['count']
-
-        for u_from, u_to, edge_atts in graph.out_edges(node, data=True):
-            node_out_degree += edge_atts['count']
-
-        node_degree_dict[node] = node_in_degree + node_out_degree
-
+    degrees = graph.degree(weight='count')
+    node_degree_dict = dict(degrees)
     return node_degree_dict
 
 
