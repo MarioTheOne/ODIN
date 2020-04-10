@@ -23,11 +23,11 @@ def read_retweet_network(tweets_folder_path):
             user_retweeted__screen_name = tweet['retweeted_status']['user']['screen_name']
 
             # if the retweeter user is not in graph then add it
-            if user_retweeter_id not in graph.node:
+            if user_retweeter_id not in graph.nodes:
                 graph.add_node(user_retweeter_id, attr_dict={'screen_name': user_retweeter_screen_name})
 
             # if the retweeted user is not in graph then add it
-            if user_retweeted_id not in graph.node:
+            if user_retweeted_id not in graph.nodes:
                 graph.add_node(user_retweeted_id, attr_dict={'screen_name': user_retweeted__screen_name})
 
             # if there is a previous relationship between the users, increase its count
