@@ -4,7 +4,7 @@ import community
 def get_partition_from_modularity_att(graph):
     partition = {}
 
-    for node in graph.node.values():
+    for node in graph.nodes.values():
         partition[node['label']] = node['Modularity Class']
 
     return partition
