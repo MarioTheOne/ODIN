@@ -1,10 +1,12 @@
 import math as math
 
 
-# Assigns an outlierness score to each element using normal distribution
-# Parameters: data_dict a dictionary containing (element_id, value)
-# Output: A dictionary containing for each element its outlierness score
 def gaussian_score(data_dict):
+    """Assigns an outlierness score to each element using normal distribution
+    Parameters:
+        data_dict - A dictionary containing (element_id, value)
+    Output:
+        A dictionary containing for each element its outlierness score"""
     result = {}
 
     # Calculating mean
@@ -35,8 +37,13 @@ def gaussian_score(data_dict):
     return result
 
 
-# Assigns an outlierness score to graph vertices based on their out-degree
 def out_degree_gaussian_anomalies(graph):
+    """Assigns an outlierness score to graph vertices based on their out-degree
+    Parameters:
+        graph - A directed graph
+    Output:
+        A dictionary containing for each element its outlierness score"""
+
     node_degree_dict = {}
     for node in graph.nodes():
         node_out_degree = 0
@@ -49,8 +56,13 @@ def out_degree_gaussian_anomalies(graph):
     return gaussian_score(node_degree_dict)
 
 
-# Assigns an outlierness score to graph vertices based on their in-degree
 def in_degree_gaussian_anomalies(graph):
+    """Assigns an outlierness score to graph vertices based on their in-degree
+    Parameters:
+        graph - A directed graph
+    Output:
+        A dictionary containing for each element its outlierness score"""
+
     node_degree_dict = {}
     for node in graph.nodes():
         node_in_degree = 0
@@ -63,19 +75,19 @@ def in_degree_gaussian_anomalies(graph):
     return gaussian_score(node_degree_dict)
 
 
-# the name stands for Directed Signed InterScore. Ranks elements according to their number of
-# inter-community out/in edges compared to their community mean. This algorithm can be used to
-# identify users open mindedness/influence in re-tweet networks.
-# Parameters:
-# graph - A directed graph representing the network
-# communities - A dictionary containing for each community_id a list of the vertices belonging to it
-# partition - A dictionary containing for each node_id to which community it belongs
-# in_edge_analysis - if true, only the in-edges are analyzed, else only the out-edges are analyzed
-# negative_anomalies - if false, the algorithm considers only those elements anomalous because their
-#                      attribute value is greater than the common range for their community
-# Output:
-# A dict containing for each node_id its outlierness score
 def inter_score_ds(graph, communities, partition, in_edges_analysis=False, negative_anomalies=False):
+    """The name stands for Directed Signed InterScore. Ranks elements according to their number of
+    inter-community out/in edges compared to their community mean. This algorithm can be used to
+    identify users open mindedness/influence in re-tweet networks.
+    Parameters:
+        graph - A directed graph representing the network
+        communities - A dictionary containing for each community_id a list of the vertices belonging to it
+        partition - A dictionary containing for each node_id to which community it belongs
+        in_edge_analysis - if true, only the in-edges are analyzed, else only the out-edges are analyzed
+        negative_anomalies - if false, the algorithm considers only those elements anomalous because their
+                             attribute value is greater than the common range for their community
+    Output:
+        A dict containing for each node_id its outlierness score"""
     outlier_ranking = {}
 
     # iterate over each community
@@ -164,15 +176,16 @@ def inter_score_ds(graph, communities, partition, in_edges_analysis=False, negat
     return outlier_ranking
 
 
-# The glance score function assigns to each node a value indicating how anomalous it is compared
-# to the members of its same community. Each node have an attributes vector.
-# Parameters:
-# graph - An undirected graph with attributed nodes representing the network
-# communities - A dictionary containing for each community_id a list of the vertices belonging to it
-# att_to_analyze - A list with the names of the node attributes to use in the analysis
-# Output:
-# A dict containing for each node_id its outlierness score
 def glance(graph, communities, att_to_analyze):
+    """The glance score function assigns to each node a value indicating how anomalous it is compared
+    to the members of its same community. Each node have an attributes vector.
+    Parameters:
+        graph - An undirected graph with attributed nodes representing the network
+        communities - A dictionary containing for each community_id a list of the vertices belonging to it
+        att_to_analyze - A list with the names of the node attributes to use in the analysis
+    Output:
+        A dict containing for each node_id its outlierness score"""
+
     # The list of the detected anomalies
     result = {}
 
@@ -227,14 +240,15 @@ def glance(graph, communities, att_to_analyze):
     return result
 
 
-# Algorithm proposed by
-# Hellig et al. 2019. A Community-Aware Approach for Identifying Node Anomalies in Complex Networks
-# Parameters:
-# graph - A directed graph representing the network
-# partition - A dictionary containing for each node_id to which community it belongs
-# Output:
-# A dict containing for each node_id its outlierness score
 def cada(graph, partition):
+    """Algorithm proposed by
+    Hellig et al. 2019. A Community-Aware Approach for Identifying Node Anomalies in Complex Networks
+    Parameters:
+        graph - A directed graph representing the network
+        partition - A dictionary containing for each node_id to which community it belongs
+    Output:
+        A dict containing for each node_id its outlierness score"""
+
     result = {}
     # Iterate over all vertices of the graph
     for v in graph.nodes():
@@ -264,3 +278,147 @@ def cada(graph, partition):
         result[v] = outlierness_score
 
     return result
+
+
+def inter_score(graph, communities, partition, direction='undirected', sign='unsigned'):
+    """This InterScore algorithm is based on InterScoreDS and behaves as the classic InterScore algorithm by default
+    it gives more flexibility than InterScoreDS because makes the direction and sign features optional
+    Parameters:
+        graph - A directed or undirected graph representing the network
+        communities - A dictionary containing for each community_id a list of the vertices belonging to it
+        partition - A dictionary containing for each node_id to which community it belongs
+        direction - A string with values: in (indicating only the in-edges are analyzed), out (only out-edges are
+                    analyzed) and undirected (all edges are analyzed)
+        sign - A string with values: positive (the algorithm considers only those elements anomalous because their
+               attribute value is greater than the common range for their community), negative (considers
+               only those elements anomalous because their attribute value is lower than the common range
+               for their community, and unsigned (default, anomalous in any direction)
+    Output:
+        A dict containing for each node_id its outlierness score"""
+
+    outlier_ranking = {}
+
+    # Checking the integrity of some parameters
+    if direction != 'undirected' and direction != 'in' and direction != 'out':
+        raise ValueError('The only valid values of the direction parameter are: in, out and undirected')
+
+    if sign != 'unsigned' and sign != 'positive' and sign != 'negative':
+        raise ValueError('The only valid values of the sign parameter are: positive, negative and unsigned')
+
+    # iterate over each community
+    for community in communities.values():
+        vertex_intercommunity_links = {}
+        community_size = len(community)
+
+        # calculating the inter-community links of each vertex inside the community
+        if direction == 'in':
+            for v in community:
+                inter_community_links = 0
+                v_com = partition[v]
+
+                # iterating over in edges
+                for u_from, u_to, edge_atts in graph.in_edges(v, data=True):
+                    # if the source node has a different community from the destiny node
+                    if partition[u_from] != v_com:
+                        # Adding the total number of links with external users
+                        inter_community_links += edge_atts['count']
+
+                vertex_intercommunity_links[v] = inter_community_links
+
+        elif direction == 'out':
+            for v in community:
+                inter_community_links = 0
+                v_com = partition[v]
+
+                # iterating over out edges
+                for u_from, u_to, edge_atts in graph.out_edges(v, data=True):
+                    # if the destiny node has a different community from the source node
+                    if partition[u_to] != v_com:
+                        # Adding the total number of links with external users
+                        inter_community_links += edge_atts['count']
+
+                vertex_intercommunity_links[v] = inter_community_links
+
+        else:
+            for v in community:
+                inter_community_links = 0
+
+                # iterating over every node edges
+                for u_from, u_to, edge_atts in graph.edges(v, data=True):
+                    # if the source node has a different community from the destiny node
+                    if partition[u_from] != partition[u_to]:
+                        # Adding the total number of links with external users
+                        inter_community_links += edge_atts['count']
+
+                vertex_intercommunity_links[v] = inter_community_links
+
+        # calculating the mean inter-community-links dissimilarity in the community
+        mean_inter_community_link_difference = 0.0
+        pair_count = 0
+        for v_i in range(0, len(community) - 1):
+            for v_j in range(v_i + 1, len(community)):
+                pair_count += 1
+                pair_diff = abs(vertex_intercommunity_links[community[v_i]] -
+                                vertex_intercommunity_links[community[v_j]])
+                mean_inter_community_link_difference += float(pair_diff)
+
+        # in the case the community has only a vertex, the mean dissimilarity is 0
+        if pair_count > 0:
+            mean_inter_community_link_difference /= float(pair_count)
+
+        # calculating the outlierness score of each vertex
+        if sign == 'negative':
+            # iterate over each vertex v in the community
+            for v in community:
+                v_score = 0.0
+                # iterate over the other members v_2 of its community
+                for v_2 in community:
+                    if v != v_2:
+                        # Determine if difference between v and its group members is greater than the mean difference
+                        signed_difference = vertex_intercommunity_links[v] - vertex_intercommunity_links[v_2]
+                        link_dissimilarity = abs(signed_difference)
+                        if link_dissimilarity > mean_inter_community_link_difference and signed_difference < 0:
+                            v_score += 1.0
+
+                v_score /= float(community_size)
+
+                # saving the score into the ranking
+                outlier_ranking[v] = v_score
+
+        elif sign == 'positive':
+            # iterate over each vertex v in the community
+            for v in community:
+                v_score = 0.0
+                # iterate over the other members v_2 of its community
+                for v_2 in community:
+                    if v != v_2:
+                        # Determine if difference between v and its group members is greater than the mean difference
+                        signed_difference = vertex_intercommunity_links[v] - vertex_intercommunity_links[v_2]
+                        link_dissimilarity = abs(signed_difference)
+                        if link_dissimilarity > mean_inter_community_link_difference and signed_difference >= 0:
+                            v_score += 1.0
+
+                v_score /= float(community_size)
+
+                # saving the score into the ranking
+                outlier_ranking[v] = v_score
+
+        else:  # Unsigned: The sign of the difference will not be considered
+            # iterate over each vertex v in the community
+            for v in community:
+                v_score = 0.0
+                # iterate over the other members v_2 of its community
+                for v_2 in community:
+                    if v != v_2:
+                        # Determine if difference between v and its group members is greater than the mean difference
+                        link_dissimilarity = abs(vertex_intercommunity_links[v] - vertex_intercommunity_links[v_2])
+
+                        if link_dissimilarity > mean_inter_community_link_difference:
+                            v_score += 1.0
+
+                v_score /= float(community_size)
+
+                # saving the score into the ranking
+                outlier_ranking[v] = v_score
+
+    return outlier_ranking
