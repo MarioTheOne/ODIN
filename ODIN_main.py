@@ -8,3 +8,15 @@ print('This project offers a set of functions to perform Anomaly Detection on Co
 print('To see how to use the functions to perform anomaly detection see the provided Jupyter Notebooks')
 
 print('The project is currently under development. It will become more stable with time ;)')
+
+database_path = 'D:/Work/Databases/Dynamic Networks/DBLP CoAuth/coauth-DBLP/'
+simplices_file = database_path + 'coauth-DBLP-simplices.txt'
+nvert_file = database_path + 'coauth-DBLP-nverts.txt'
+times_file = database_path + 'coauth-DBLP-times.txt'
+vertices_names_file = database_path + 'coauth-DBLP-node-labels.txt'
+
+# dblp_network_2013 = NetManager.read_snapshot_from_simplices(simplices_file, nvert_file, times_file,
+#                                                               vertices_names_file, 2013)
+#
+# NetManager.write_network_as_gpickle_file(dblp_network_2013, 'Networks/dblp/dblp_network_2013.gpickle')
+
